@@ -165,10 +165,7 @@
         .lineup-sub-title { font-size: 56px; font-weight: 900; line-height: 0.9; letter-spacing: -1px; -webkit-text-stroke: 1px white; color: transparent; }
 
         .lineup-wrapper { position: relative; padding-bottom: 2rem; }
-        /* The connecting background line */
-        .lineup-wrapper::before {
-            content: ''; position: absolute; left: 15px; top: 0; bottom: 0; width: 2px; background: rgba(255,255,255,0.1); z-index: 0;
-        }
+        .lineup-wrapper::before { content: ''; position: absolute; left: 15px; top: 0; bottom: 0; width: 2px; background: rgba(255,255,255,0.1); z-index: 0; }
 
         .lineup-card { margin-bottom: 2.5rem; margin-left: 90px; position: relative; }
         
@@ -188,9 +185,7 @@
         .bg-mclaren { background: linear-gradient(90deg, #b35900 0%, #FF8700 100%); }
         .text-mclaren { color: #FF8700; }
 
-        .lineup-car-wrapper {
-            position: absolute; left: -105px; top: 0; height: 80px; width: 140px; display: flex; align-items: center; z-index: 5;
-        }
+        .lineup-car-wrapper { position: absolute; left: -105px; top: 0; height: 80px; width: 140px; display: flex; align-items: center; z-index: 5; }
         
         .lineup-text { text-align: right; }
         .lineup-role { font-family: var(--font-display); font-size: 28px; color: white; text-transform: uppercase; line-height: 1.1; letter-spacing: 0.5px;}
@@ -235,7 +230,8 @@
         .p-tag { font-family: var(--font-mono); font-size: 10px; padding: 4px 10px; background: rgba(255,255,255,0.05); text-transform: uppercase; }
 
         /* --- Skills Table --- */
-        table { width: 100%; border-collapse: collapse; margin-bottom: 3rem; }
+        .table-wrapper { overflow-x: auto; margin-bottom: 3rem; }
+        table { width: 100%; border-collapse: collapse; min-width: 500px; }
         th { font-family: var(--font-mono); font-size: 10px; color: var(--light-grey); text-transform: uppercase; text-align: left; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.2); }
         td { padding: 1.5rem 1rem; font-family: var(--font-display); font-size: 22px; text-transform: uppercase; border-bottom: 1px solid var(--border); }
         tr:hover td { background: #0a0a0a; }
@@ -248,6 +244,14 @@
         .cert-box li { padding: 1rem 0; border-bottom: 1px solid var(--border); font-size: 14px; display: flex; gap: 10px; }
         .cert-box li::before { content: '→'; color: var(--red); }
         .cert-box li:last-child { border-bottom: none; padding-bottom: 0; }
+
+        /* --- Promos --- */
+        .promo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+        .promo { aspect-ratio: 16/9; padding: 3rem; display: flex; flex-direction: column; justify-content: space-between; text-decoration: none; color: white; background: linear-gradient(135deg, #222, #000); border: 1px solid var(--border); transition: border-color 0.3s; }
+        .promo:hover { border-color: var(--red); }
+        .promo-top { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; color: var(--red); }
+        .promo-bot h3 { font-family: var(--font-display); font-size: 48px; text-transform: uppercase; line-height: 0.9; margin-bottom: 0.5rem; }
+        .promo-bot p { font-family: var(--font-mono); font-size: 11px; color: var(--light-grey); text-transform: uppercase; }
 
         /* --- Contact Links --- */
         .contact-links { display: flex; flex-direction: column; gap: 1rem; }
@@ -273,6 +277,74 @@
         
         /* GSAP Utility */
         .reveal { opacity: 0; transform: translateY(40px); }
+
+        /* =========================================
+           RESPONSIVE MEDIA QUERIES (TABLET & MOBILE)
+           ========================================= */
+        
+        /* Tablets (Max 1024px) */
+        @media (max-width: 1024px) {
+            nav { padding: 1.5rem 2rem; }
+            header.hero { padding: 0 2rem; }
+            .hero h1 { font-size: 18vw; }
+            .hero-content { max-width: 80%; }
+            .hero-img { width: 70%; }
+            
+            .stats-strip { grid-template-columns: repeat(2, 1fr); border-bottom: none;}
+            .stat-box { border-bottom: 1px solid var(--border); }
+            .stat-box:nth-child(2) { border-right: none; }
+            
+            .split-section { grid-template-columns: 1fr; gap: 4rem; padding: 6rem 2rem; }
+            .split-left { position: relative; top: 0; }
+            .sec-desc { max-width: 100%; }
+            
+            .f-grid { grid-template-columns: repeat(3, 1fr); }
+            footer { padding: 5rem 2rem 2rem 2rem; }
+        }
+
+        /* Mobile Phones (Max 768px) */
+        @media (max-width: 768px) {
+            .nav-links { display: none; } /* Hide text links on mobile to save space */
+            
+            .hero-img { width: 100%; opacity: 0.4 !important; mask-image: none; -webkit-mask-image: none; }
+            .hero-content { max-width: 100%; margin-top: 8rem; z-index: 10; }
+            .hero h1 { font-size: 22vw; }
+            
+            .stats-strip { grid-template-columns: 1fr; }
+            .stat-box { border-right: none !important; padding: 2rem; }
+            
+            .sec-title { font-size: 48px; }
+            
+            /* F1 Mobile Lineup Override */
+            .lineup-wrapper::before { display: none; } /* Hide vertical line */
+            .lineup-card { margin-left: 0; margin-top: 60px; }
+            .lineup-car-wrapper { left: 50%; top: -50px; transform: translateX(-50%); width: 110px; height: auto; justify-content: center;}
+            .lineup-bar { padding: 2.5rem 1rem 1.5rem 1rem; flex-direction: column; text-align: center; height: auto; justify-content: center; border-left: none; border-top: 4px solid var(--black); }
+            .lineup-text { text-align: center; }
+            .lineup-logo { margin-left: 0; margin-top: 15px; }
+            .lineup-details { padding: 1.5rem; }
+            .e-tags { justify-content: center; }
+
+            .clock-card { padding: 2rem; }
+            .clock-time { font-size: 42px; }
+            
+            .project-card { padding: 2rem; }
+            .p-desc { max-width: 100%; }
+            
+            .tab-item { grid-template-columns: 1fr; gap: 1rem; padding: 1.5rem; text-align: center; justify-items: center;}
+            .tab-item:hover { padding-left: 1.5rem; }
+
+            .promo-grid { grid-template-columns: 1fr; }
+            .promo { aspect-ratio: auto; padding: 2rem; gap: 3rem;}
+            .promo-bot h3 { font-size: 36px; }
+            
+            .c-link { flex-direction: column; align-items: flex-start; gap: 1rem; padding: 1.5rem; }
+            .c-link:hover { padding-left: 1.5rem; }
+            .c-val { font-size: 24px; word-break: break-all; }
+            
+            .f-grid { grid-template-columns: 1fr; gap: 3rem; margin-bottom: 4rem;}
+            .f-bot { flex-direction: column; gap: 1.5rem; align-items: flex-start; }
+        }
     </style>
 </head>
 <body>
@@ -458,7 +530,7 @@
             <p class="sec-desc">Ranked by depth of application in production settings, spanning healthcare analytics, database management, and visualization.</p>
         </div>
         <div class="split-right">
-            <div class="reveal">
+            <div class="table-wrapper reveal">
                 <table>
                     <thead><tr><th>Pos</th><th>Skill</th><th>Category</th><th style="text-align:right;">Level</th></tr></thead>
                     <tbody id="skillsContainer"></tbody>
