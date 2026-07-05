@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gurjit Singh | Business Analyst</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,800;0,900;1,800;1,900&family=Inter:wght@300;400&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Three.js & GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+    <style>
+        :root {
+            --red: #E8002D;
+            --black: #000000;
+            --dark-grey: #111111;
+            --border: rgba(255, 255, 255, 0.1);
+            --light-grey: rgba(255, 255, 255, 0.6);
+            
+            --font-display: 'Barlow Condensed', sans-serif;
+            --font-body: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        
+        body {
+            background-color: var(--black);
+            color: #ffffff;
+            font-family: var(--font-body);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- Navigation --- */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 4rem;
+            z-index: 100;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+        }
+        .nav-brand { font-family: var(--font-display); font-size: 28px; color: white; text-decoration: none; font-weight: 900; letter-spacing: 1px;}
+        .nav-brand span { color: var(--red); font-size: 14px; vertical-align: top; }
+        .nav-links { display: flex; gap: 3rem; list-style: none; }
+        .nav-links a { font-family: var(--font-mono); font-size: 11px; color: white; text-decoration: none; text-transform: uppercase; letter-spacing: 0.1em; transition: color 0.3s;}
+        .nav-links a:hover { color: var(--red); }
+        .nav-cta { background: var(--red); color: white; padding: 12px 24px; text-decoration: none; font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; transition: background 0.3s;}
+        .nav-cta:hover { background: #c20025; }
+
+        /* --- Hero Section --- */
+        header.hero {
+            position: relative;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 0 4rem;
+            overflow: hidden;
+        }
+        #hero-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+        
+        .hero-img {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            width: 55%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 2;
+            mask-image: linear-gradient(to left, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 100%);
+            -webkit-mask-image: linear-gradient(to left, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 100%);
+            opacity: 0;
+        }
+        
+        .hero-content { position: relative; z-index: 3; max-width: 60%; margin-top: 4rem; }
+        .hero-meta { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 10px; color: var(--light-grey); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 3rem; }
+        
+        .hero h1 {
+            font-family: var(--font-display);
+            font-size: 13vw;
+            line-height: 0.85;
+            text-transform: uppercase;
+            font-style: italic;
+            margin-bottom: 2rem;
+            letter-spacing: -0.02em;
+        }
+        .clip-text { overflow: hidden; display: block; }
+        .clip-text span { display: block; transform: translateY(110%); }
+        .hero h1 sup { font-size: 3vw; color: var(--red); vertical-align: top; font-style: normal; }
+        
+        .hero-bottom-text { font-family: var(--font-mono); font-size: 12px; color: var(--light-grey); text-transform: uppercase; letter-spacing: 0.1em; }
+        .hero-bottom-text b { color: white; }
+
+        .scroll-indicator { position: absolute; bottom: 3rem; right: 4rem; display: flex; align-items: center; gap: 1rem; font-family: var(--font-mono); font-size: 10px; color: var(--light-grey); z-index: 3;}
+        .scroll-line { width: 40px; height: 1px; background: rgba(255,255,255,0.2); position: relative; overflow: hidden; }
+        .scroll-line::after { content: ''; position: absolute; left: -100%; top: 0; width: 100%; height: 100%; background: var(--red); animation: scrollRight 2s infinite ease-in-out; }
+        @keyframes scrollRight { 0% { left: -100%; } 100% { left: 100%; } }
+
+        /* --- Stats Strip --- */
+        .stats-strip {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            border-bottom: 1px solid var(--border);
+            background: var(--black);
+        }
+        .stat-box { padding: 3rem; border-right: 1px solid var(--border); text-align: center; }
+        .stat-box:last-child { border-right: none; }
+        .stat-num { font-family: var(--font-display); font-size: 56px; font-weight: 900; line-height: 1; }
+        .stat-num sup { color: var(--red); font-size: 28px; }
+        .stat-lbl { font-family: var(--font-mono); font-size: 11px; color: var(--light-grey); text-transform: uppercase; margin-top: 0.5rem; letter-spacing: 0.05em; }
+
+        /* --- Split Layout Sections --- */
+        .split-section {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 6rem;
+            padding: 8rem 4rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .split-left { position: sticky; top: 120px; height: fit-content; }
+        
+        .sec-label { font-family: var(--font-mono); font-size: 11px; color: var(--red); text-transform: uppercase; margin-bottom: 1.5rem; letter-spacing: 0.1em; }
+        .sec-title { font-family: var(--font-display); font-size: 64px; text-transform: uppercase; line-height: 0.9; margin-bottom: 1.5rem; }
+        .sec-title em { color: var(--red); font-style: italic; }
+        .sec-desc { font-family: var(--font-body); font-size: 16px; color: var(--light-grey); line-height: 1.6; max-width: 90%; }
+
+        /* --- Tabs Module --- */
+        .tab-list { display: flex; flex-direction: column; gap: 1rem; }
+        .tab-item {
+            background: var(--dark-grey);
+            padding: 2.5rem;
+            display: grid;
+            grid-template-columns: auto 1fr auto auto;
+            align-items: center;
+            gap: 3rem;
+            text-decoration: none;
+            color: white;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+        .tab-item:hover { background: #1a1a1a; border-color: rgba(232,0,45,0.3); padding-left: 3.5rem; }
+        .tab-num { font-family: var(--font-mono); color: var(--red); font-size: 12px; }
+        .tab-title { font-family: var(--font-display); font-size: 36px; text-transform: uppercase; }
+        .tab-sub { font-family: var(--font-mono); font-size: 10px; color: var(--light-grey); text-transform: uppercase; }
+        .tab-icon { font-size: 24px; color: var(--red); }
+        
+        /* --- F1 Team Line Up Experience Section --- */
+        .lineup-header-block { text-align: center; margin-bottom: 3rem; font-family: var(--font-display); text-transform: uppercase; }
+        .lineup-main-title { font-size: 56px; font-weight: 900; line-height: 0.9; letter-spacing: -1px; color: white; }
+        .lineup-sub-title { font-size: 56px; font-weight: 900; line-height: 0.9; letter-spacing: -1px; -webkit-text-stroke: 1px white; color: transparent; }
+
+        .lineup-wrapper { position: relative; padding-bottom: 2rem; }
+        /* The connecting background line */
+        .lineup-wrapper::before {
+            content: ''; position: absolute; left: 15px; top: 0; bottom: 0; width: 2px; background: rgba(255,255,255,0.1); z-index: 0;
+        }
+
+        .lineup-card { margin-bottom: 2.5rem; margin-left: 90px; position: relative; }
+        
+        .lineup-bar {
+            position: relative; display: flex; justify-content: flex-end; align-items: center;
+            height: 80px; border-radius: 12px 12px 0 0; padding: 0 30px; z-index: 2;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5); border-left: 4px solid var(--black);
+        }
+        
+        /* Team Colors */
+        .bg-ferrari { background: linear-gradient(90deg, #990000 0%, #E8002D 100%); }
+        .text-ferrari { color: #E8002D; }
+        
+        .bg-mercedes { background: linear-gradient(90deg, #005953 0%, #00D2BE 100%); }
+        .text-mercedes { color: #00D2BE; }
+        
+        .bg-mclaren { background: linear-gradient(90deg, #b35900 0%, #FF8700 100%); }
+        .text-mclaren { color: #FF8700; }
+
+        .lineup-car-wrapper {
+            position: absolute; left: -105px; top: 0; height: 80px; width: 140px; display: flex; align-items: center; z-index: 5;
+        }
+        
+        .lineup-text { text-align: right; }
+        .lineup-role { font-family: var(--font-display); font-size: 28px; color: white; text-transform: uppercase; line-height: 1.1; letter-spacing: 0.5px;}
+        .lineup-role span { font-weight: 400; }
+        .lineup-role strong { font-weight: 900; }
+        .lineup-company { font-family: var(--font-mono); font-size: 14px; color: rgba(255,255,255,0.9); font-weight: 700; text-transform: uppercase; margin-top: 2px;}
+
+        .lineup-logo {
+            width: 44px; height: 44px; border-radius: 50%; background: rgba(0,0,0,0.25); display: flex; align-items: center; justify-content: center;
+            font-family: var(--font-display); font-weight: 900; font-size: 16px; color: white; margin-left: 1.5rem; letter-spacing: 1px;
+        }
+
+        .lineup-details {
+            background: #111; border: 1px solid var(--border); border-top: none; border-radius: 0 0 12px 12px;
+            padding: 1.5rem 2rem 1.5rem 3rem; font-size: 14px; color: var(--light-grey); line-height: 1.6;
+            transition: background 0.3s;
+        }
+        .lineup-card:hover .lineup-details { background: #151515; }
+        
+        .e-meta { font-family: var(--font-mono); font-size: 10px; color: var(--red); text-transform: uppercase; margin-bottom: 1rem; letter-spacing: 0.05em;}
+        .e-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 1.5rem;}
+        .e-tag { font-family: var(--font-mono); font-size: 10px; padding: 4px 10px; background: rgba(255,255,255,0.05); text-transform: uppercase; border: 1px solid var(--border); border-radius: 2px;}
+
+        /* --- Live Clock --- */
+        .clock-card { background: var(--dark-grey); padding: 3rem; position: relative; margin-top: 2rem;}
+        .clock-hdr { font-family: var(--font-mono); font-size: 11px; color: var(--red); text-transform: uppercase; margin-bottom: 2rem; display: flex; align-items: center; gap: 8px;}
+        .live-dot { width: 8px; height: 8px; background: var(--red); border-radius: 50%; animation: pulse 2s infinite; }
+        .clock-time { font-family: var(--font-display); font-size: 64px; font-weight: 900; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+        .clock-time span { color: var(--red); font-size: 32px;}
+        .clock-sub { font-family: var(--font-mono); font-size: 11px; color: var(--light-grey); text-transform: uppercase; }
+
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(232,0,45,0.7); } 70% { box-shadow: 0 0 0 8px rgba(232,0,45,0); } 100% { box-shadow: 0 0 0 0 rgba(232,0,45,0); } }
+
+        /* --- Projects Grid --- */
+        .project-list { display: flex; flex-direction: column; gap: 2rem; }
+        .project-card { background: var(--dark-grey); padding: 3rem; border: 1px solid transparent; transition: all 0.4s; position: relative; overflow: hidden;}
+        .project-card:hover { background: #151515; border-color: rgba(232,0,45,0.3); }
+        .p-cat { font-family: var(--font-mono); font-size: 10px; color: var(--red); text-transform: uppercase; margin-bottom: 1rem; }
+        .p-title { font-family: var(--font-display); font-size: 42px; text-transform: uppercase; margin-bottom: 1rem; line-height: 1.1; }
+        .p-desc { font-size: 15px; color: var(--light-grey); line-height: 1.6; margin-bottom: 2rem; max-width: 85%; }
+        .p-tags { display: flex; gap: 10px; flex-wrap: wrap; }
+        .p-tag { font-family: var(--font-mono); font-size: 10px; padding: 4px 10px; background: rgba(255,255,255,0.05); text-transform: uppercase; }
+
+        /* --- Skills Table --- */
+        table { width: 100%; border-collapse: collapse; margin-bottom: 3rem; }
+        th { font-family: var(--font-mono); font-size: 10px; color: var(--light-grey); text-transform: uppercase; text-align: left; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.2); }
+        td { padding: 1.5rem 1rem; font-family: var(--font-display); font-size: 22px; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+        tr:hover td { background: #0a0a0a; }
+        .pos-num { color: var(--light-grey); font-family: var(--font-mono); font-size: 12px; }
+        .cat-lbl { color: var(--red); font-family: var(--font-mono); font-size: 11px; }
+        
+        .cert-box { background: var(--dark-grey); padding: 2rem; }
+        .cert-box h4 { font-family: var(--font-mono); font-size: 11px; color: var(--red); text-transform: uppercase; margin-bottom: 1rem; }
+        .cert-box ul { list-style: none; }
+        .cert-box li { padding: 1rem 0; border-bottom: 1px solid var(--border); font-size: 14px; display: flex; gap: 10px; }
+        .cert-box li::before { content: '→'; color: var(--red); }
+        .cert-box li:last-child { border-bottom: none; padding-bottom: 0; }
+
+        /* --- Contact Links --- */
+        .contact-links { display: flex; flex-direction: column; gap: 1rem; }
+        .c-link { background: var(--dark-grey); padding: 2.5rem; display: flex; justify-content: space-between; align-items: center; text-decoration: none; color: white; transition: all 0.3s; }
+        .c-link:hover { background: #151515; padding-left: 3.5rem; border-left: 4px solid var(--red); }
+        .c-lbl { font-family: var(--font-mono); font-size: 11px; color: var(--red); text-transform: uppercase; margin-bottom: 0.5rem; }
+        .c-val { font-family: var(--font-display); font-size: 32px; text-transform: uppercase; }
+        .c-arr { font-family: var(--font-mono); font-size: 24px; color: var(--light-grey); transition: color 0.3s; }
+        .c-link:hover .c-arr { color: var(--red); }
+
+        /* --- Footer --- */
+        footer { background: var(--red); padding: 5rem 4rem 2rem 4rem; color: white; }
+        .f-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 2rem; margin-bottom: 6rem; }
+        .f-col h4 { font-family: var(--font-display); font-size: 20px; text-transform: uppercase; border-bottom: 2px solid rgba(255,255,255,0.3); padding-bottom: 10px; margin-bottom: 1.5rem; }
+        .f-col ul { list-style: none; }
+        .f-col li { margin-bottom: 10px; }
+        .f-col a { color: white; text-decoration: none; font-size: 14px; opacity: 0.9; }
+        .f-col a:hover { opacity: 1; text-decoration: underline; }
+        
+        .f-bot { display: flex; justify-content: space-between; align-items: center; font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 2rem; }
+        .f-socials { display: flex; gap: 2rem; }
+        .f-socials a { color: white; text-decoration: none; }
+        
+        /* GSAP Utility */
+        .reveal { opacity: 0; transform: translateY(40px); }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="#hero" class="nav-brand">GURJIT<span>™</span></a>
+        <ul class="nav-links">
+            <li><a href="#experience">Experience</a></li>
+            <li><a href="#projects">Projects</a></li>
+            <li><a href="#skills">Skills</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+        <a href="#contact" class="nav-cta">Get In Touch →</a>
+    </nav>
+
+    <header id="hero" class="hero">
+        <canvas id="hero-canvas"></canvas>
+        <img src="2026_Explainer_FIA_Front_3_4_1920x1080.avif" alt="2026 FIA F1 Concept Car" class="hero-img">
+        
+        <div class="hero-content">
+            <div class="hero-meta">
+                <div>Healthcare Analytics · Data Viz · Automation</div>
+            </div>
+            
+            <h1>
+                <span class="clip-text"><span class="t-line">Gurjit<sup>™</sup></span></span>
+                <span class="clip-text"><span class="t-line">Singh</span></span>
+            </h1>
+            
+            <div class="hero-bottom-text reveal-fade">
+                Business Analyst · <b>Navi Mumbai</b> · IKS Health
+            </div>
+        </div>
+
+        <div class="scroll-indicator reveal-fade">
+            SCROLL <div class="scroll-line"></div>
+        </div>
+    </header>
+
+    <section class="stats-strip">
+        <div class="stat-box reveal"><div class="stat-num">4<sup>+</sup></div><div class="stat-lbl">Years Experience</div></div>
+        <div class="stat-box reveal"><div class="stat-num">80<sup>%</sup></div><div class="stat-lbl">Time Saved via Automation</div></div>
+        <div class="stat-box reveal"><div class="stat-num">8<sup>+</sup></div><div class="stat-lbl">Core Tech Tools</div></div>
+        <div class="stat-box reveal"><div class="stat-num">2</div><div class="stat-lbl">Certifications</div></div>
+    </section>
+
+    <!-- F1 TEAM LINE UP: EXPERIENCE SECTION -->
+    <section id="experience" class="split-section">
+        <div class="split-left">
+            <div class="sec-label">Career Track</div>
+            <h2 class="sec-title">Work<br><em>History</em></h2>
+            <p class="sec-desc">Originally from Assam, I am currently engineering robust healthcare data systems from Navi Mumbai. I balance a high-impact analytical workflow with my ongoing Master of Computer Applications (MCA) studies. My focus is always on translating complex operational metrics into clear, strategic advantages.</p>
+            
+            <div class="clock-card reveal" style="margin-top: 4rem;">
+                <div class="clock-hdr"><div class="live-dot"></div> Live · IKS Health · Navi Mumbai</div>
+                <div class="clock-time" id="liveClock">0<span>Y</span> : 0<span>M</span> : 0<span>D</span></div>
+                <div class="clock-sub">Business Analyst · Since July 2025 · 4+ Years Overall Experience</div>
+            </div>
+        </div>
+        
+        <div class="split-right">
+            <div class="lineup-header-block reveal">
+                <h2 class="lineup-main-title">TEAM LINE UP</h2>
+                <h3 class="lineup-sub-title">UPDATED</h3>
+            </div>
+
+            <div class="lineup-wrapper">
+                
+                <!-- Card 1: IKS Health -->
+                <div class="lineup-card reveal">
+                    <div class="lineup-car-wrapper text-ferrari">
+                        <!-- Inline F1 SVG -->
+                        <svg viewBox="0 0 250 100" style="width: 100%; height: auto; filter: drop-shadow(8px 8px 8px rgba(0,0,0,0.6));">
+                            <rect x="25" y="10" width="35" height="18" rx="4" fill="#151515"/> <rect x="25" y="72" width="35" height="18" rx="4" fill="#151515"/>
+                            <rect x="175" y="5" width="40" height="22" rx="4" fill="#151515"/> <rect x="175" y="73" width="40" height="22" rx="4" fill="#151515"/>
+                            <line x1="42" y1="28" x2="60" y2="50" stroke="#333" stroke-width="4"/> <line x1="42" y1="72" x2="60" y2="50" stroke="#333" stroke-width="4"/>
+                            <line x1="195" y1="27" x2="160" y2="50" stroke="#333" stroke-width="4"/> <line x1="195" y1="73" x2="160" y2="50" stroke="#333" stroke-width="4"/>
+                            <path d="M50,30 L200,30 L200,70 L50,70 Z" fill="#222"/>
+                            <!-- Colored Body -->
+                            <path d="M15,42 L15,58 L65,65 L130,75 L190,65 L220,58 L220,42 L190,35 L130,25 L65,35 Z" fill="currentColor"/>
+                            <path d="M100,38 L140,38 L140,62 L100,62 Z" fill="#000" rx="5"/> <path d="M115,50 L140,40 L140,60 Z" fill="#222"/>
+                            <path d="M10,15 L25,15 L32,38 L32,62 L25,85 L10,85 Z" fill="#111"/> <path d="M5,20 L15,20 L15,80 L5,80 Z" fill="currentColor"/>
+                            <path d="M210,15 L235,15 L235,85 L210,85 Z" fill="#111"/> <path d="M225,20 L232,20 L232,80 L225,80 Z" fill="currentColor"/>
+                        </svg>
+                    </div>
+                    <div class="lineup-bar bg-ferrari">
+                        <div class="lineup-text">
+                            <div class="lineup-role"><span>Business</span> <strong>ANALYST</strong></div>
+                            <div class="lineup-company">IKS HEALTH</div>
+                        </div>
+                        <div class="lineup-logo">IKS</div>
+                    </div>
+                    <div class="lineup-details">
+                        <div class="e-meta">July 2025 – Present · Navi Mumbai</div>
+                        <p>Leading data analysis and reporting for healthcare clients using Epic and Optum platforms. Built interactive Tableau dashboards to track performance and automated recurring report generation using Python scripts, saving 80% of manual reporting time.</p>
+                        <div class="e-tags">
+                            <span class="e-tag">Tableau</span> <span class="e-tag">Python</span> <span class="e-tag">BigQuery</span> <span class="e-tag">Epic</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 2: PKPI -->
+                <div class="lineup-card reveal">
+                    <div class="lineup-car-wrapper text-mercedes">
+                        <svg viewBox="0 0 250 100" style="width: 100%; height: auto; filter: drop-shadow(8px 8px 8px rgba(0,0,0,0.6));">
+                            <rect x="25" y="10" width="35" height="18" rx="4" fill="#151515"/> <rect x="25" y="72" width="35" height="18" rx="4" fill="#151515"/>
+                            <rect x="175" y="5" width="40" height="22" rx="4" fill="#151515"/> <rect x="175" y="73" width="40" height="22" rx="4" fill="#151515"/>
+                            <line x1="42" y1="28" x2="60" y2="50" stroke="#333" stroke-width="4"/> <line x1="42" y1="72" x2="60" y2="50" stroke="#333" stroke-width="4"/>
+                            <line x1="195" y1="27" x2="160" y2="50" stroke="#333" stroke-width="4"/> <line x1="195" y1="73" x2="160" y2="50" stroke="#333" stroke-width="4"/>
+                            <path d="M50,30 L200,30 L200,70 L50,70 Z" fill="#222"/>
+                            <path d="M15,42 L15,58 L65,65 L130,75 L190,65 L220,58 L220,42 L190,35 L130,25 L65,35 Z" fill="currentColor"/>
+                            <path d="M100,38 L140,38 L140,62 L100,62 Z" fill="#000" rx="5"/> <path d="M115,50 L140,40 L140,60 Z" fill="#222"/>
+                            <path d="M10,15 L25,15 L32,38 L32,62 L25,85 L10,85 Z" fill="#111"/> <path d="M5,20 L15,20 L15,80 L5,80 Z" fill="currentColor"/>
+                            <path d="M210,15 L235,15 L235,85 L210,85 Z" fill="#111"/> <path d="M225,20 L232,20 L232,80 L225,80 Z" fill="currentColor"/>
+                        </svg>
+                    </div>
+                    <div class="lineup-bar bg-mercedes">
+                        <div class="lineup-text">
+                            <div class="lineup-role"><span>Biz & Web</span> <strong>ANALYST</strong></div>
+                            <div class="lineup-company">PKPI ACCOUNTANTS UK</div>
+                        </div>
+                        <div class="lineup-logo">PK</div>
+                    </div>
+                    <div class="lineup-details">
+                        <div class="e-meta">Apr 2024 – Dec 2024 · Remote (UK)</div>
+                        <p>Tracked website and marketing metrics to deliver data-driven business insights. Revamped the company website and conducted comprehensive SEO optimization, successfully increasing overall web traffic by 35% and user engagement by 20%.</p>
+                        <div class="e-tags">
+                            <span class="e-tag">Excel</span> <span class="e-tag">Ahrefs</span> <span class="e-tag">HTML</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 3: Tea Shurubs -->
+                <div class="lineup-card reveal">
+                    <div class="lineup-car-wrapper text-mclaren">
+                        <svg viewBox="0 0 250 100" style="width: 100%; height: auto; filter: drop-shadow(8px 8px 8px rgba(0,0,0,0.6));">
+                            <rect x="25" y="10" width="35" height="18" rx="4" fill="#151515"/> <rect x="25" y="72" width="35" height="18" rx="4" fill="#151515"/>
+                            <rect x="175" y="5" width="40" height="22" rx="4" fill="#151515"/> <rect x="175" y="73" width="40" height="22" rx="4" fill="#151515"/>
+                            <line x1="42" y1="28" x2="60" y2="50" stroke="#333" stroke-width="4"/> <line x1="42" y1="72" x2="60" y2="50" stroke="#333" stroke-width="4"/>
+                            <line x1="195" y1="27" x2="160" y2="50" stroke="#333" stroke-width="4"/> <line x1="195" y1="73" x2="160" y2="50" stroke="#333" stroke-width="4"/>
+                            <path d="M50,30 L200,30 L200,70 L50,70 Z" fill="#222"/>
+                            <path d="M15,42 L15,58 L65,65 L130,75 L190,65 L220,58 L220,42 L190,35 L130,25 L65,35 Z" fill="currentColor"/>
+                            <path d="M100,38 L140,38 L140,62 L100,62 Z" fill="#000" rx="5"/> <path d="M115,50 L140,40 L140,60 Z" fill="#222"/>
+                            <path d="M10,15 L25,15 L32,38 L32,62 L25,85 L10,85 Z" fill="#111"/> <path d="M5,20 L15,20 L15,80 L5,80 Z" fill="currentColor"/>
+                            <path d="M210,15 L235,15 L235,85 L210,85 Z" fill="#111"/> <path d="M225,20 L232,20 L232,80 L225,80 Z" fill="currentColor"/>
+                        </svg>
+                    </div>
+                    <div class="lineup-bar bg-mclaren">
+                        <div class="lineup-text">
+                            <div class="lineup-role"><span>Web Dev &</span> <strong>ANALYST</strong></div>
+                            <div class="lineup-company">TEA SHURUBS BHARAT</div>
+                        </div>
+                        <div class="lineup-logo">TSB</div>
+                    </div>
+                    <div class="lineup-details">
+                        <div class="e-meta">Aug 2022 – Aug 2023 · Noida</div>
+                        <p>Designed and maintained a dynamic e-commerce website while developing interactive Tableau dashboards for sales and customer insights, effectively reducing routine reporting time by 30%.</p>
+                        <div class="e-tags">
+                            <span class="e-tag">Tableau</span> <span class="e-tag">RDBMS</span> <span class="e-tag">Wix</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <section id="projects" class="split-section">
+        <div class="split-left">
+            <div class="sec-label">02 / Portfolio</div>
+            <h2 class="sec-title">Selected <em>work</em></h2>
+            <p class="sec-desc">Healthcare analytics, reporting automation, and business intelligence dashboards. Driving strategic decisions with clean, actionable data.</p>
+        </div>
+        <div class="split-right project-list" id="projectContainer">
+            <!-- Injected via JS -->
+        </div>
+    </section>
+
+    <section id="skills" class="split-section">
+        <div class="split-left">
+            <div class="sec-label">03 / Standings</div>
+            <h2 class="sec-title">Technical <em>grid</em></h2>
+            <p class="sec-desc">Ranked by depth of application in production settings, spanning healthcare analytics, database management, and visualization.</p>
+        </div>
+        <div class="split-right">
+            <div class="reveal">
+                <table>
+                    <thead><tr><th>Pos</th><th>Skill</th><th>Category</th><th style="text-align:right;">Level</th></tr></thead>
+                    <tbody id="skillsContainer"></tbody>
+                </table>
+            </div>
+            <div class="cert-box reveal">
+                <h4>Education & Certifications</h4>
+                <ul>
+                    <li>Master of Computer Applications (MCA) – IGNOU (2023-Present)</li>
+                    <li>Google Data Analytics Certificate – Coursera</li>
+                    <li>Tableau Specialization – DataCamp</li>
+                    <li>Bachelor of Computer Applications (BCA) – 8.53 CGPA (2022)</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="split-section" style="border-bottom: none;">
+        <div class="split-left">
+            <div class="sec-label">Chequered Flag</div>
+            <h2 class="sec-title" style="font-size: 80px;">Work<br><em>Together</em></h2>
+        </div>
+        <div class="split-right contact-links">
+            <a href="mailto:gurjit79660@gmail.com" class="c-link reveal">
+                <div><div class="c-lbl">Email</div><div class="c-val">gurjit79660@gmail.com</div></div>
+                <div class="c-arr">→</div>
+            </a>
+            <a href="https://linkedin.com/in/gurjit-singh-8b6680150" target="_blank" class="c-link reveal">
+                <div><div class="c-lbl">LinkedIn</div><div class="c-val">/in/gurjit-singh</div></div>
+                <div class="c-arr">→</div>
+            </a>
+            <div class="c-link reveal" style="pointer-events: none;">
+                <div><div class="c-lbl">Location</div><div class="c-val">Airoli, Navi Mumbai</div></div>
+                <div class="c-arr">📍</div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="f-grid">
+            <div class="f-col"><h4>Projects</h4><ul><li><a href="#projects">Healthcare Automation</a></li><li><a href="#projects">Sales Data Mgmt</a></li><li><a href="#projects">PKPI Web Optimization</a></li><li><a href="#projects">Tea Shurubs Analytics</a></li></ul></div>
+            <div class="f-col"><h4>Skills</h4><ul><li><a href="#skills">Tableau & Excel</a></li><li><a href="#skills">Python Automation</a></li><li><a href="#skills">SQL & BigQuery</a></li><li><a href="#skills">Jira / Agile</a></li></ul></div>
+            <div class="f-col"><h4>Education</h4><ul><li><a href="#skills">MCA (IGNOU)</a></li><li><a href="#skills">Google Data Analytics</a></li><li><a href="#skills">Tableau Specialization</a></li></ul></div>
+            <div class="f-col"><h4>Domain</h4><ul><li><a href="#experience">Healthcare Systems</a></li><li><a href="#experience">Reporting Automation</a></li><li><a href="#experience">Dashboard Design</a></li><li><a href="#experience">Business Intelligence</a></li></ul></div>
+            <div class="f-col"><h4>Contact</h4><ul><li><a href="mailto:gurjit79660@gmail.com">Email</a></li><li><a href="https://linkedin.com/in/gurjit-singh-8b6680150">LinkedIn</a></li><li><a href="#contact">Airoli, Navi Mumbai</a></li></ul></div>
+        </div>
+        <div class="f-bot">
+            <div>© 2026 · Gurjit Singh · Navi Mumbai</div>
+            <div class="f-socials">
+                <a href="https://linkedin.com/in/gurjit-singh-8b6680150">LinkedIn</a>
+                <a href="mailto:gurjit79660@gmail.com">Mail</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // --- Three.js Background ---
+        const canvas = document.getElementById('hero-canvas');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+        
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        const particlesGeom = new THREE.BufferGeometry();
+        const particlesCount = 1200;
+        const posArray = new Float32Array(particlesCount * 3);
+        const colArray = new Float32Array(particlesCount * 3);
+        const colorRed = new THREE.Color('#E8002D');
+        const colorWhite = new THREE.Color('#ffffff');
+
+        for(let i = 0; i < particlesCount * 3; i+=3) {
+            posArray[i] = (Math.random() - 0.5) * 15;
+            posArray[i+1] = (Math.random() - 0.5) * 15;
+            posArray[i+2] = (Math.random() - 0.5) * 15;
+
+            const isRed = Math.random() < 0.08;
+            const c = isRed ? colorRed : colorWhite;
+            const intensity = isRed ? 1 : Math.random() * 0.3 + 0.1;
+            colArray[i] = c.r * intensity;
+            colArray[i+1] = c.g * intensity;
+            colArray[i+2] = c.b * intensity;
+        }
+
+        particlesGeom.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+        particlesGeom.setAttribute('color', new THREE.BufferAttribute(colArray, 3));
+        
+        const particlesMat = new THREE.PointsMaterial({ size: 0.04, vertexColors: true, transparent: true, opacity: 0.8 });
+        const particlesMesh = new THREE.Points(particlesGeom, particlesMat);
+        scene.add(particlesMesh);
+        camera.position.z = 4;
+
+        function animate3D() {
+            requestAnimationFrame(animate3D);
+            particlesMesh.rotation.y += 0.0005;
+            renderer.render(scene, camera);
+        }
+        animate3D();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // --- Data Population ---
+        const projects = [
+            { cat: "Automation · Python", title: "Healthcare Reporting Automation", desc: "Automated recurring report generation using Python scripts for Epic and Optum platforms, saving 80% of manual reporting time and enabling faster turnaround.", tags: ["Python", "BigQuery", "SQL"] },
+            { cat: "Analytics · Tableau", title: "Sales Data Management", desc: "Managed and organized sales data in Excel to track trends; developed Tableau dashboards enabling data-driven regional sales strategies.", tags: ["Tableau", "Advanced Excel"] },
+            { cat: "SEO · Web Analytics", title: "PKPI Web Optimization", desc: "Tracked marketing metrics, optimized SEO via Ahrefs (increasing traffic 35%), and revamped UI, driving 20% higher user engagement.", tags: ["HTML", "Ahrefs", "Excel"] },
+            { cat: "E-Commerce · Analytics", title: "Tea Shurubs Bharat", desc: "Designed dynamic Wix site and interactive Tableau dashboards for sales and customer insights, reducing reporting time by 30%.", tags: ["Tableau", "RDBMS", "HTML"] }
+        ];
+
+        const pContainer = document.getElementById('projectContainer');
+        projects.forEach(p => {
+            const tagsHtml = p.tags.map(t => `<span class="p-tag">${t}</span>`).join('');
+            pContainer.innerHTML += `
+                <div class="project-card reveal">
+                    <div class="p-cat">${p.cat}</div>
+                    <h3 class="p-title">${p.title}</h3>
+                    <p class="p-desc">${p.desc}</p>
+                    <div class="p-tags">${tagsHtml}</div>
+                </div>`;
+        });
+
+        const skills = [
+            { pos: "01", skill: "Tableau", cat: "Visualisation", lvl: "95%" },
+            { pos: "02", skill: "Excel (Adv)", cat: "Analytics", lvl: "95%" },
+            { pos: "03", skill: "SQL & BigQuery", cat: "Data Eng", lvl: "90%" },
+            { pos: "04", skill: "Python", cat: "Automation", lvl: "85%" },
+            { pos: "05", skill: "Epic & Optum", cat: "Healthcare", lvl: "85%" },
+            { pos: "06", skill: "Jira / Agile", cat: "Project Mgt", lvl: "80%" }
+        ];
+
+        const sContainer = document.getElementById('skillsContainer');
+        skills.forEach(s => {
+            sContainer.innerHTML += `
+                <tr>
+                    <td class="pos-num">${s.pos}</td>
+                    <td><strong>${s.skill}</strong></td>
+                    <td class="cat-lbl">${s.cat}</td>
+                    <td style="text-align:right; font-weight:900;">${s.lvl}</td>
+                </tr>`;
+        });
+
+        // --- Live Clock ---
+        function updateClock() {
+            const start = new Date('2025-07-01');
+            const now = new Date();
+            let y = now.getFullYear() - start.getFullYear();
+            let m = now.getMonth() - start.getMonth();
+            let d = now.getDate() - start.getDate();
+            if(d < 0) { m--; d += new Date(now.getFullYear(), now.getMonth(), 0).getDate(); }
+            if(m < 0) { y--; m += 12; }
+            document.getElementById('liveClock').innerHTML = `${y}<span>Y</span> : ${m}<span>M</span> : ${d}<span>D</span>`;
+        }
+        updateClock();
+        setInterval(updateClock, 60000);
+
+        // --- GSAP Animations ---
+        gsap.registerPlugin(ScrollTrigger);
+
+        // Hero Sequence
+        const tl = gsap.timeline();
+        tl.to('.hero-img', { opacity: 1, duration: 1.5, ease: "power2.inOut" }, 0.2)
+          .to('.t-line', { y: '0%', duration: 1, stagger: 0.15, ease: "power4.out" }, 0.5)
+          .fromTo('.reveal-fade', { opacity: 0 }, { opacity: 1, duration: 1, stagger: 0.2 }, 1.2);
+
+        // Scroll Reveals
+        gsap.utils.toArray('.reveal').forEach(elem => {
+            gsap.to(elem, {
+                scrollTrigger: { trigger: elem, start: "top 85%" },
+                opacity: 1, y: 0, duration: 0.8, ease: "power3.out"
+            });
+        });
+
+        // Stats Stagger
+        gsap.to('.stat-box', {
+            scrollTrigger: { trigger: '.stats-strip', start: "top 90%" },
+            opacity: 1, y: 0, stagger: 0.1, duration: 0.8, ease: "power3.out"
+        });
+    </script>
+</body>
+</html>
